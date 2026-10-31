@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lắng nghe gia đình · WI.GROW</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<style>
+/* Bố cục giữ theo mẫu WI.ART: một cột giữa, mỗi câu một thẻ, ô tiến độ phía trên. Bảng màu WI.GROW: xanh lá (đất lành, hạt) + vàng nắng (Gia đình Ánh sáng). */
+:root{
+  --paper:#FFFFFF; --page:#DFE4DA; --blush:#F0F5EC; --ink:#2E3830; --muted:#56615A;
+  --magenta:#2F6B4A; --rose:#7FB069; --peach:#F2D58A; --line:#DCE5D6;
+  --display:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--page);color:var(--ink)}
+body{font-family:var(--body);font-size:17px;line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header.brand{display:flex;flex-direction:column;align-items:center;gap:12px}
+header.brand img{width:min(220px,60vw);border-radius:12px}
+.mosaic{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;max-width:420px}
+.mosaic .tile{width:28px;height:28px;border-radius:4px;background:var(--line);transition:background .3s;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:600;color:var(--muted);border:0;padding:0;font-family:var(--body)}
+.mosaic button.t{cursor:pointer}.mosaic .tile.done:nth-child(4n){color:var(--ink)}.mosaic .tile.done{color:#fff}
+.mosaic .tile.done{background:var(--rose)} .mosaic .tile.done:nth-child(3n){background:var(--magenta)} .mosaic .tile.done:nth-child(4n){background:var(--peach)}
+.mosaic .tile.now{outline:2px solid var(--magenta);outline-offset:1px}
+.jump{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.jump select{font:inherit;font-size:14px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:#fff;color:var(--ink);max-width:100%}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:28px clamp(18px,5vw,36px);display:flex;flex-direction:column;gap:16px}
+h1,h2{font-family:var(--display);font-weight:700;text-wrap:balance;margin:0;line-height:1.35}
+h1{font-size:clamp(26px,6vw,34px)} h2{font-size:clamp(17px,3.8vw,19px);font-weight:600}
+p{margin:0}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--magenta);font-weight:600}
+.muted{color:var(--muted)} .small{font-size:14px}
+.hint{font-size:15px;color:var(--muted)}
+label.f{display:flex;flex-direction:column;gap:6px;font-weight:500;font-size:15px}
+input[type=text],input[type=tel],input[type=email],textarea{font:inherit;width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;color:var(--ink)}
+textarea{min-height:130px;resize:vertical}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--magenta);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:15px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:8px 16px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--magenta);border-color:var(--magenta);color:#fff}
+.mic{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.micbtn{width:43px;height:43px;border-radius:50%;border:0;background:var(--magenta);color:#fff;cursor:pointer;display:grid;place-items:center;flex:none;box-shadow:0 6px 18px rgba(47,107,74,.28)}
+.micbtn svg{width:19px;height:19px}
+.micbtn.rec{background:#1F4D34;animation:pulse 1.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(47,107,74,.45)}100%{box-shadow:0 0 0 18px rgba(47,107,74,0)}}
+@media (prefers-reduced-motion:reduce){.micbtn.rec{animation:none}.mosaic .tile{transition:none}}
+.micstate{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.micstate b{font-weight:600}
+.timer{font-variant-numeric:tabular-nums;color:var(--magenta);font-weight:600}
+audio{width:100%;height:40px}
+.nav{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.btn{font:inherit;font-weight:600;border-radius:999px;padding:12px 24px;cursor:pointer;border:1px solid var(--magenta);background:var(--magenta);color:#fff}
+.btn.ghost{background:#fff;color:var(--magenta);border-color:var(--magenta)}
+.btn:disabled{opacity:.5;cursor:default}
+.note{background:var(--blush);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--muted)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.check input{margin-top:5px;accent-color:var(--magenta)}
+.tag{font-size:13px;color:var(--muted)}
+.err{color:#B3123F;font-size:14px}
+footer{text-align:center;font-size:12px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+
+/* reset nhỏ (trước đây do khung artifact cung cấp) */
+body{margin:0}
+img{max-width:100%;height:auto}
+[hidden]{display:none!important}
+
+/* WI.GROW */
+.wordmark{display:flex;flex-direction:column;align-items:center;gap:2px}
+.wm{font-weight:700;font-size:clamp(28px,7vw,36px);letter-spacing:.06em;color:var(--magenta)}
+.tagline{font-size:14px;color:var(--muted)}
+.lead{font-size:15px;color:var(--muted)}
+ul.prompts{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+ul.prompts li{font-weight:600;font-size:clamp(16px,3.6vw,18px);line-height:1.5}
+.fields{display:grid;gap:12px}
+.aside{background:var(--blush);border-radius:12px;padding:14px 16px;display:flex;gap:12px;font-size:14px;color:var(--muted)}
+.aside .ic{font-size:20px;line-height:1.3;flex:none}
+.aside b{color:var(--ink);display:block;margin-bottom:2px}
+.consent{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+.jump{flex-wrap:wrap}.jump select{flex:1;min-width:0}
+.note a{color:var(--magenta)}
+.kids{display:flex;flex-direction:column;gap:14px}
+fieldset.kid{border:1px solid var(--line);border-radius:12px;padding:12px 14px 14px;margin:0;display:flex;flex-direction:column;gap:12px;min-width:0}
+fieldset.kid legend{font-weight:600;color:var(--magenta);padding:0 6px;font-size:15px}
+fieldset.kid .chip{align-self:flex-start;font-size:14px;padding:6px 14px}
+.addkid{align-self:flex-start;padding:10px 20px}
+.consent a{color:var(--magenta)}
+
+h2{text-wrap:pretty}
+</style></head><body>
+
+<div class="wrap">
+  <header class="brand">
+    <div class="wordmark"><span class="wm">WI.GROW</span><span class="tagline">Nơi cả nhà cùng trưởng thành</span></div>
+    <div class="mosaic" id="mosaic" role="navigation" aria-label="Chuyển đến câu hỏi"></div>
+  </header>
+  <main id="app" class="card" aria-live="polite"></main>
+  <footer>Đất lành nuôi hạt • Yêu thương nuôi người</footer>
+</div>
+<script>
+// Dán URL Web App của Google Apps Script vào đây (giống trang WI.ART). Để trống thì nút cuối sẽ tải câu trả lời về máy.
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbz1mn-O5lDRJ9KVYBFsjRyp3oDxYIIxtXU7yI1G-fiGLmDWtD5SqpLIK4DssAohdUccSg/exec";
+// Mục đích hỏi ngày/giờ sinh, hiện ngay trên ô đồng ý.
+const DOB_PURPOSE = "WI.GROW xin ngày và giờ sinh của cha mẹ và từng con để dùng trong một học phần thử nghiệm sau này: đọc thử các góc nhìn tham khảo như thần số học, tử vi và Human Design về tố chất của con và mối quan hệ giữa cha mẹ và con. Đây là góc nhìn tham khảo để cùng trò chuyện và định hướng, không phải kết luận khoa học hay chẩn đoán về con. Thông tin chỉ dùng trong WI.GROW, không chia sẻ cho bên ngoài, và gia đình có thể yêu cầu xóa bất cứ lúc nào.";
+
+const ICON_MIC = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2Z"/></svg>';
+const ICON_STOP = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+
+const PARTS = {
+  1:{t:"Phần 1 · Bối cảnh gia đình", d:"Hiểu điều kiện sinh hoạt và việc anh/chị đang muốn tìm hiểu cho con."},
+  2:{t:"Phần 2 · Mong muốn & điều coi trọng", d:"Lắng nghe thay đổi gia đình thực sự cần, thay vì mặc định mọi trẻ cần cùng một lộ trình."},
+  3:{t:"Phần 3 · Điều kiện tham gia & cân nhắc chi trả", d:"Hiểu điều gì vừa sức với gia đình và điều gì có thể khiến một lựa chọn chưa phù hợp."},
+  4:{t:"Phần 4 · Cách tìm hiểu, lựa chọn & nhìn lại", d:"Hiểu hành trình quyết định thực tế, không chỉ hỏi gia đình có thích một ý tưởng hay không."}
+};
+// Câu 01 có thêm các ô thông tin (fields) và danh sách các con; các câu khác là danh sách ý hỏi (prompts) + ô kể.
+const FAMILY = [
+  ["parent","Họ và tên phụ huynh"],
+  ["carer","Ai thường chăm sóc con và ai quyết định việc học của con?"]
+];
+// Mỗi con một nhóm ô, đều bắt buộc.
+const KID_FIELDS = [
+  ["name","Họ và tên"],
+  ["age","Tuổi"],
+  ["dob","Ngày/tháng/năm sinh"],
+  ["tob","Giờ sinh"]
+];
+const ORD = ["thứ nhất","thứ hai","thứ ba","thứ tư","thứ năm","thứ sáu","thứ bảy","thứ tám"];
+const kidLabel = k => "Con "+(ORD[k]||"thứ "+(k+1));
+const Q = [
+  {p:1,title:"Thông tin gia đình",fields:FAMILY,kids:true,prompts:[]},
+  {p:1,title:"Một tình huống gần đây khiến anh/chị muốn tìm thêm sự hỗ trợ",prompts:["Gần đây, chuyện gì trong việc học hoặc sinh hoạt của con khiến anh/chị muốn tìm thêm hỗ trợ?","Khi đó, anh/chị đã xử lý thế nào?"],hint:"Nếu hiện chưa có nhu cầu, anh/chị có thể ghi rõ điều đó."},
+  {p:1,title:"Cách gia đình và con đang nhìn vấn đề",prompts:["Chuyện đó ảnh hưởng đến gia đình anh/chị như thế nào?","Con đã nói gì về chuyện đó? Anh/chị có thể ghi lại đúng lời con nếu nhớ."]},
+  {p:2,title:"Thay đổi mong muốn",prompts:["Trong 3–6 tháng tới, anh/chị mong con hoặc gia đình có thay đổi cụ thể nào?","Về lâu dài, trong 1–3 năm tới, điều gì anh/chị coi trọng nhất khi đồng hành với con?"]},
+  {p:2,title:"Những cách đã thử và kết quả thực tế",prompts:["Gia đình đã thử những cách nào để giải quyết nhu cầu này?","Cách nào có ích hoặc chưa phù hợp với gia đình?"]},
+  {p:2,title:"Điều anh/chị thật sự mong khi tìm hỗ trợ",prompts:["Nếu tìm được sự hỗ trợ phù hợp, điều gì sẽ nhẹ nhõm hơn hoặc tốt lên cho chính anh/chị?","Điều gì khiến gia đình muốn bắt đầu ngay lúc này? Hoặc vì sao gia đình thấy có thể đợi thêm?"]},
+  {p:3,title:"Khả năng tham gia của con và gia đình",prompts:["Hình thức và lịch tham gia như thế nào là phù hợp với con?","Cha mẹ có thể dành bao nhiêu thời gian để đồng hành?"]},
+  {p:3,title:"Điều cần biết để tin tưởng và điều khiến anh/chị từ chối",prompts:["Anh/chị cần biết điều gì để yên tâm cho con tham gia?","Điều gì khiến anh/chị từ chối hoặc dừng một chương trình?"]},
+  {p:3,title:"Ngân sách và mức sẵn sàng đầu tư",prompts:["Với nhu cầu này, gia đình có thể cân nhắc ngân sách bao nhiêu mỗi tháng? Chỉ tìm hỗ trợ miễn phí cũng là lựa chọn phù hợp.","Điều gì khiến anh/chị thấy khoản chi đó xứng đáng?"]},
+  {p:4,title:"Từ nhận ra nhu cầu đến tìm phương án",prompts:["Lần gần nhất, điều gì khiến anh/chị bắt đầu tìm hoạt động hoặc người hỗ trợ cho con?","Anh/chị đã tìm thông tin ở đâu hoặc hỏi ai?"],hint:"Nếu chưa từng tìm, anh/chị có thể ghi “Chưa từng”."},
+  {p:4,title:"Từ cân nhắc đến quyết định và tham gia",prompts:["Trong lần đó, điều gì quyết định việc gia đình đăng ký hoặc không đăng ký?","Nếu đã tham gia, gia đình gặp khó khăn gì trong quá trình sử dụng?"],hint:"Nếu chưa từng đăng ký, anh/chị có thể bỏ qua ý thứ hai."},
+  {p:4,title:"Tiếp tục, dừng hoặc giới thiệu",prompts:["Với một chương trình từng tham gia, điều gì khiến gia đình muốn tiếp tục hoặc dừng lại?","Anh/chị đã kể về trải nghiệm đó với người khác như thế nào?"],hint:"Nếu chưa có trải nghiệm, anh/chị có thể ghi “Chưa có”."}
+];
+const N = Q.length;
+const num = i => String(i+1).padStart(2,"0");
+
+// Thông tin bổ sung · hỏi sau khi kết thúc phỏng vấn
+const DOB_FIELDS = [
+  ["parentDob","Ngày/tháng/năm sinh của phụ huynh"],
+  ["parentTob","Giờ sinh của phụ huynh"]
+];
+const INFO_FIELDS = [
+  ["gender","Giới tính của người trả lời"],
+  ["city","Tỉnh/thành phố đang sống (quốc gia nếu ở nước ngoài)"],
+  ["setting","Bối cảnh sống (ví dụ: thành thị/nông thôn)"],
+  ["job","Nghề nghiệp/chuyên môn và nhịp làm việc"],
+  ["income","Khoảng thu nhập hộ gia đình/tháng (không bắt buộc)"]
+];
+const CONTACT_FIELDS = [
+  ["phone","Số điện thoại","tel"],
+  ["facebook","Facebook (nếu có)","text"]
+];
+
+// ---- state ----
+const S = {step:-1, fam:{}, kids:[{}], info:{dobOk:false,contactOk:false}, ans:Q.map(()=>({text:""})), audio:{}, sent:false};
+const DRAFT_KEY = "wigrow-phuhuynh-draft";
+try{const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||"null"); if(d&&!d.sent){Object.assign(S.fam,d.fam);if(Array.isArray(d.kids)&&d.kids.length)S.kids=d.kids;Object.assign(S.info,d.info);S.ans=d.ans;S.step=Math.min(d.step,N)}}catch(e){}
+function saveDraft(){try{localStorage.setItem(DRAFT_KEY,JSON.stringify({fam:S.fam,kids:S.kids,info:S.info,ans:S.ans,step:S.step,sent:S.sent}))}catch(e){}}
+
+const app = document.getElementById("app");
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function answered(i){
+  if(S.ans[i].text.trim()||S.audio[i]) return true;
+  if(Q[i].kids&&S.kids.some(c=>KID_FIELDS.some(([k])=>(c[k]||"").trim()))) return true;
+  return !!(Q[i].fields&&Q[i].fields.some(([k])=>(S.fam[k]||"").trim()));
+}
+// Những ô bắt buộc còn trống: thông tin từng con + ngày giờ sinh phụ huynh.
+function missingRequired(){
+  const m=[];
+  S.kids.forEach((c,n)=>{const e=KID_FIELDS.filter(([k])=>!(c[k]||"").trim()).map(([,l])=>l.toLowerCase());
+    if(e.length) m.push(kidLabel(n).toLowerCase()+" ("+e.join(", ")+")")});
+  DOB_FIELDS.forEach(([k,l])=>{if(!(S.info[k]||"").trim()) m.push(l.toLowerCase())});
+  return m;
+}
+
+function drawMosaic(){
+  const m=document.getElementById("mosaic"); m.innerHTML="";
+  const canJump=S.step>=0&&!S.sent;
+  Q.forEach((q,i)=>{const t=document.createElement(canJump?"button":"i");
+    if(canJump){t.className="t";t.setAttribute("aria-label","Câu "+num(i));t.onclick=()=>goTo(i)}
+    t.textContent=i+1; t.classList.add("tile");
+    if(answered(i)) t.classList.add("done");
+    if(i===S.step) t.classList.add("now"); m.appendChild(t)});
+}
+
+// ---- screens ----
+function render(){
+  stopRec(true);
+  drawMosaic();
+  if(S.step===-1) return renderWelcome();
+  if(S.step>=N) return S.sent?renderThanks():renderFinish();
+  renderQuestion(S.step);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function renderWelcome(){
+  app.innerHTML=`
+    <p class="eyebrow">Phỏng vấn phụ huynh</p>
+    <h1>Lắng nghe gia đình</h1>
+    <p>Chào anh/chị,</p>
+    <p>WI.GROW muốn lắng nghe câu chuyện thật của gia đình qua <b>12 câu hỏi</b>, chia thành 4 phần. Không có câu trả lời đúng hay sai. Những điều gia đình đang cần, chưa cần hay thấy chưa phù hợp đều có giá trị.</p>
+    <div class="note">Anh/chị có thể <b>bấm nút micro để kể</b> như đang trò chuyện, lời kể sẽ hiện thành chữ để xem lại. Thích gõ thì cứ gõ nhé.</div>
+    <div class="nav"><span class="tag">Cảm ơn anh/chị đã dành thời gian.</span><button class="btn" id="go">Bắt đầu</button></div>`;
+  byId("go").onclick=()=>{S.step=0;saveDraft();render()};
+}
+
+function fieldHtml(id,label,value,type){
+  return `<label class="f">${esc(label)}<input type="${type||"text"}" id="${id}" value="${esc(value)}"></label>`;
+}
+
+function renderQuestion(i){
+  const q=Q[i], a=S.ans[i], part=PARTS[q.p];
+  const fld = ([k,l])=>fieldHtml("f-"+k,l,S.fam[k]);
+  const kids = q.kids ? `<div class="kids">${S.kids.map((c,n)=>`
+      <fieldset class="kid"><legend>${kidLabel(n)}</legend>
+        <div class="fields">${KID_FIELDS.map(([k,l])=>fieldHtml(`k${n}-${k}`,l+" *",c[k])).join("")}</div>
+        ${S.kids.length>1?`<button class="chip" type="button" data-rm="${n}">Bỏ ${kidLabel(n).toLowerCase()}</button>`:""}
+      </fieldset>`).join("")}
+      <button class="btn ghost addkid" type="button" id="addkid">+ Thêm con</button>
+      <p class="hint small">Nếu không nhớ chính xác giờ sinh, anh/chị ghi giờ gần đúng hoặc “Không rõ”. Ngày giờ sinh dùng cho học phần thử nghiệm của WI.GROW; mục đích đầy đủ và ô đồng ý nằm ở phần thông tin bổ sung cuối buổi.</p></div>` : "";
+  const fields = q.fields ? `<div class="fields">${fld(q.fields[0])}</div>${kids}<div class="fields">${q.fields.slice(1).map(fld).join("")}</div>` : "";
+  const prompts = q.prompts.length ? `<ul class="prompts">${q.prompts.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>` : "";
+  app.innerHTML=`
+    <p class="eyebrow">${esc(part.t)}</p>
+    <p class="lead">${esc(part.d)}</p>
+    <label class="jump" for="jump">Câu
+      <select id="jump">${Q.map((x,k)=>`<option value="${k}" ${k===i?"selected":""}>${num(k)}. ${esc(x.title.length>48?x.title.slice(0,46)+"…":x.title)}</option>`).join("")}<option value="${N}">Thông tin bổ sung và gửi</option></select>
+      / ${N}</label>
+    <h2>${num(i)} · ${esc(q.title).replace(/ (\S+) (\S+)$/,"&nbsp;$1&nbsp;$2")}</h2>
+    ${fields}
+    ${prompts}
+    ${q.hint?`<p class="hint">${esc(q.hint)}</p>`:""}
+    <div class="mic">
+      <button class="micbtn" id="mic" aria-label="Bấm để kể bằng giọng nói">${ICON_MIC}</button>
+      <div class="micstate"><b id="micT">Bấm để kể</b><span class="small muted" id="micS">Nói tự nhiên, bấm lần nữa để dừng.</span></div>
+    </div>
+    <div id="player"></div>
+    <label class="f"><span class="small muted">Câu trả lời của anh/chị</span>
+      <textarea id="txt" placeholder="Lời kể sẽ hiện ở đây, anh/chị có thể sửa hoặc gõ thêm…">${esc(a.text)}</textarea></label>
+    <div class="nav">
+      <button class="btn ghost" id="back">Quay lại</button>
+      <button class="btn" id="next">${i===N-1?"Hoàn tất":"Tiếp"}</button>
+    </div>`;
+  if(q.fields) q.fields.forEach(([k])=>byId("f-"+k).addEventListener("input",e=>{S.fam[k]=e.target.value;saveDraft();drawMosaic()}));
+  if(q.kids){
+    S.kids.forEach((c,n)=>KID_FIELDS.forEach(([k])=>byId(`k${n}-${k}`).addEventListener("input",e=>{c[k]=e.target.value;saveDraft();drawMosaic()})));
+    byId("addkid").onclick=()=>{S.kids.push({});saveDraft();renderQuestion(i);const f=byId(`k${S.kids.length-1}-name`);f&&f.focus()};
+    app.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{S.kids.splice(+b.dataset.rm,1);saveDraft();renderQuestion(i);drawMosaic()});
+  }
+  byId("txt").addEventListener("input",e=>{a.text=e.target.value;saveDraft();drawMosaic()});
+  byId("mic").onclick=()=>REC.active?stopRec():startRec(i);
+  byId("jump").onchange=e=>goTo(+e.target.value);
+  byId("back").onclick=()=>{S.step--;saveDraft();render()};
+  byId("next").onclick=()=>{S.step++;saveDraft();render()};
+  showPlayer(i);
+  if(MIC_BLOCKED) micUnavailable();
+}
+
+function renderFinish(){
+  const missing = Q.map((q,i)=>answered(i)?null:i+1).filter(Boolean);
+  const I=S.info;
+  app.innerHTML=`
+    <p class="eyebrow">Thông tin bổ sung · Hỏi sau khi kết thúc phỏng vấn</p>
+    <h2>Cảm ơn ${esc(S.fam.parent||"anh/chị")} đã chia sẻ.</h2>
+    ${missing.length?`<p class="note">Còn ${missing.length} câu chưa có câu trả lời: ${missing.map(n=>`<a href="#" data-g="${n-1}">câu ${String(n).padStart(2,"0")}</a>`).join(", ")}. Anh/chị có thể quay lại hoặc gửi luôn.</p>`:""}
+    <div class="aside"><span class="ic" aria-hidden="true">📝</span><div>Anh/chị có thể bỏ qua mục chưa tiện chia sẻ. Riêng họ tên, tuổi, ngày và giờ sinh của các con, cùng ngày và giờ sinh của cha mẹ là phần cần điền đầy đủ; mục đích được nói rõ ngay bên dưới và WI.GROW chỉ lưu khi anh/chị đồng ý, đặc biệt với thông tin của trẻ. Số điện thoại và Facebook không bắt buộc; chỉ cung cấp nếu anh/chị đồng ý để WI.GROW liên hệ thêm về nhu cầu vừa trao đổi.</div></div>
+    <div class="consent">
+      <p class="small"><b>Ngày và giờ sinh của cha mẹ và các con</b></p>
+      <p class="small muted">${esc(DOB_PURPOSE)}</p>
+      <p class="small muted">Ngày giờ sinh của các con đã ghi ở câu 01 (<a href="#" data-g="0">xem lại</a>).</p>
+      <div class="fields" id="dobBox">${DOB_FIELDS.map(([k,l])=>fieldHtml("i-"+k,l+" *",I[k])).join("")}
+        <p class="hint small">Nếu không nhớ chính xác giờ sinh, anh/chị ghi giờ gần đúng hoặc “Không rõ”.</p></div>
+      <label class="check"><input type="checkbox" id="c-dob" ${I.dobOk?"checked":""}><span>Tôi đồng ý để WI.GROW lưu thông tin và ngày giờ sinh của tôi và của các con cho mục đích trên. *</span></label>
+    </div>
+    <div class="fields">${INFO_FIELDS.map(([k,l])=>fieldHtml("i-"+k,l,I[k])).join("")}</div>
+    <div class="consent">
+      <label class="check"><input type="checkbox" id="c-contact" ${I.contactOk?"checked":""}><span>Tôi đồng ý để WI.GROW liên hệ thêm về nhu cầu vừa trao đổi.</span></label>
+      <div class="fields" id="contactBox" ${I.contactOk?"":"hidden"}>${CONTACT_FIELDS.map(([k,l,t])=>fieldHtml("i-"+k,l,I[k],t)).join("")}</div>
+    </div>
+    <p class="err" id="err" hidden></p>
+    <div class="nav"><button class="btn ghost" id="back">Quay lại</button><button class="btn" id="send">${ENDPOINT?"Gửi câu trả lời":"Lưu câu trả lời"}</button></div>`;
+  app.querySelectorAll("[data-g]").forEach(l=>l.onclick=e=>{e.preventDefault();S.step=+l.dataset.g;render()});
+  [...DOB_FIELDS,...INFO_FIELDS,...CONTACT_FIELDS].forEach(([k])=>byId("i-"+k).addEventListener("input",e=>{I[k]=e.target.value;saveDraft()}));
+  byId("c-dob").onchange=e=>{I.dobOk=e.target.checked;saveDraft()};
+  byId("c-contact").onchange=e=>{I.contactOk=e.target.checked;byId("contactBox").hidden=!I.contactOk;saveDraft()};
+  byId("back").onclick=()=>{S.step=N-1;render()};
+  byId("send").onclick=submit;
+}
+
+function renderThanks(){
+  app.innerHTML=`
+    <p class="eyebrow">Lời cảm ơn</p>
+    <div class="aside"><span class="ic" aria-hidden="true">💚</span><div><b>Cảm ơn anh/chị đã chia sẻ</b>Những điều gia đình đang cần, chưa cần và không phù hợp đều có giá trị. WI.GROW không mặc định mọi băn khoăn cần được giải quyết bằng một khóa học hoặc dịch vụ trả phí.</div></div>
+    ${S.savedLocal?`<p class="small muted">Câu trả lời đã được tải về máy dưới dạng tệp chữ${Object.keys(S.audio).length?", kèm các bản ghi âm":""}.</p>`:""}
+    <p class="muted small">Đất lành nuôi hạt • Yêu thương nuôi người</p>`;
+}
+
+// ---- sending ----
+function payload(){
+  const I=S.info, pick=list=>Object.fromEntries(list.map(([k])=>[k,(I[k]||"").trim()]));
+  return {createdAt:new Date().toISOString(),
+    family:Object.fromEntries(FAMILY.map(([k])=>[k,(S.fam[k]||"").trim()])),
+    numChildren:S.kids.length,
+    children:S.kids.map(c=>Object.fromEntries(KID_FIELDS.map(([k])=>[k,(c[k]||"").trim()]))),
+    answers:Q.map((q,i)=>({no:num(i), question:q.title, text:S.ans[i].text.trim()})),
+    consentBirth:I.dobOk, birth:pick(DOB_FIELDS),
+    info:pick(INFO_FIELDS),
+    consentContact:I.contactOk, contact:I.contactOk?pick(CONTACT_FIELDS):{}};
+}
+function asText(d){
+  const L=[`WI.GROW · Phỏng vấn phụ huynh · ${d.createdAt}`,""];
+  FAMILY.forEach(([k,l])=>L.push(`${l}: ${d.family[k]}`));
+  L.push(`Số con: ${d.numChildren}`);
+  d.children.forEach((c,n)=>L.push(`${kidLabel(n)}: `+KID_FIELDS.map(([k,l])=>`${l}: ${c[k]}`).join(" · ")));
+  L.push("");
+  d.answers.forEach(a=>{L.push(`${a.no} · ${a.question}`,a.text||"(chưa trả lời)","")});
+  L.push("THÔNG TIN BỔ SUNG");
+  L.push(`Đồng ý lưu thông tin và ngày giờ sinh: ${d.consentBirth?"Có":"Không"}`);
+  DOB_FIELDS.forEach(([k,l])=>L.push(`${l}: ${d.birth[k]}`));
+  INFO_FIELDS.forEach(([k,l])=>L.push(`${l}: ${d.info[k]}`));
+  L.push(`Đồng ý để WI.GROW liên hệ thêm: ${d.consentContact?"Có":"Không"}`);
+  CONTACT_FIELDS.forEach(([k,l])=>d.consentContact&&L.push(`${l}: ${d.contact[k]}`));
+  return L.join("\n");
+}
+function download(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+async function blobToB64(b){return new Promise(r=>{const f=new FileReader();f.onload=()=>r(String(f.result).split(",")[1]);f.readAsDataURL(b)})}
+
+async function submit(){
+  const btn=byId("send"), err=byId("err"); btn.disabled=true; btn.textContent="Đang gửi…"; err.hidden=true;
+  try{
+    const I=S.info;
+    const miss=missingRequired();
+    if(miss.length) throw new Error("Anh/chị điền giúp các mục bắt buộc còn thiếu: "+miss.join("; ")+".");
+    if(!I.dobOk) throw new Error("Anh/chị tick vào ô đồng ý để WI.GROW lưu thông tin và ngày giờ sinh thì mới gửi được.");
+    const data=payload();
+    if(ENDPOINT){
+      data.audio={};
+      for(const k of Object.keys(S.audio)) data.audio[num(+k)]={mime:S.audio[k].blob.type,b64:await blobToB64(S.audio[k].blob)};
+      await fetch(ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)});
+    } else {
+      const who=(data.family.parent||"phu-huynh").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/gi,"d").replace(/[^\w]+/g,"-").toLowerCase();
+      download(new Blob([asText(data)],{type:"text/plain;charset=utf-8"}),`wigrow-${who}.txt`);
+      Object.keys(S.audio).forEach(k=>{const b=S.audio[k].blob;download(b,`wigrow-${who}-cau-${num(+k)}.${/mp4/.test(b.type)?"m4a":"webm"}`)});
+      S.savedLocal=true;
+    }
+    S.sent=true; saveDraft(); try{localStorage.removeItem(DRAFT_KEY)}catch(e){} render();
+  }catch(e){
+    err.textContent = (e&&e.message)||"Chưa gửi được, anh/chị thử lại giúp WI.GROW nhé."; err.hidden=false;
+    btn.disabled=false; btn.textContent="Gửi lại";
+  }
+}
+
+// ---- microphone: record audio + live Vietnamese speech-to-text ----
+const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+let MIC_BLOCKED=false;
+const REC={active:false,i:-1,stream:null,mr:null,chunks:[],sr:null,base:"",finals:"",t0:0,tick:null};
+
+function micUnavailable(){
+  const b=byId("mic"); if(!b) return;
+  b.disabled=true; b.style.opacity=.35;
+  byId("micT").textContent="Micro chưa mở được ở trang này";
+  byId("micS").innerHTML="Anh/chị có thể bấm vào ô bên dưới rồi dùng <b>nút micro trên bàn phím điện thoại</b> để nói, hoặc gõ trực tiếp.";
+}
+
+async function startRec(i){
+  const a=S.ans[i];
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) throw new Error("no-media");
+    REC.stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  }catch(e){MIC_BLOCKED=true;micUnavailable();return}
+  REC.active=true;REC.i=i;REC.chunks=[];REC.base=a.text?a.text.replace(/\s*$/," "):"";REC.finals="";
+  if(window.MediaRecorder){
+    const mime=["audio/webm;codecs=opus","audio/mp4","audio/webm"].find(m=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m));
+    try{REC.mr=new MediaRecorder(REC.stream,mime?{mimeType:mime}:undefined)}catch(e){REC.mr=new MediaRecorder(REC.stream)}
+    REC.mr.ondataavailable=e=>e.data.size&&REC.chunks.push(e.data);
+    REC.mr.onstop=()=>{const blob=new Blob(REC.chunks,{type:REC.mr.mimeType||"audio/webm"});
+      if(blob.size>2000){ // giữ cả bản ghi cũ: nối thêm
+        const prev=S.audio[REC.i]; S.audio[REC.i]={blob:prev?new Blob([prev.blob,blob],{type:blob.type}):blob};
+      } if(S.step===REC.i) showPlayer(REC.i); drawMosaic();};
+    REC.mr.start(1000);
+  }
+  if(SR){
+    const r=new SR(); r.lang="vi-VN"; r.continuous=true; r.interimResults=true;
+    r.onresult=ev=>{let interim="";for(let k=ev.resultIndex;k<ev.results.length;k++){const t=ev.results[k][0].transcript;
+        if(ev.results[k].isFinal) REC.finals+=t.trim()+" "; else interim+=t}
+      a.text=(REC.base+REC.finals+interim).trimStart(); const ta=byId("txt"); if(ta&&S.step===i) ta.value=a.text; saveDraft();};
+    r.onend=()=>{if(REC.active&&REC.sr===r){try{r.start()}catch(e){}}};
+    r.onerror=()=>{};
+    REC.sr=r; try{r.start()}catch(e){}
+  }
+  const btn=byId("mic"); btn.classList.add("rec"); btn.innerHTML=ICON_STOP; btn.setAttribute("aria-label","Dừng ghi âm");
+  REC.t0=Date.now();
+  REC.tick=setInterval(()=>{const s=Math.floor((Date.now()-REC.t0)/1000);const el=byId("micT");if(el)el.innerHTML=`Đang lắng nghe… <span class="timer">${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}</span>`},500);
+  byId("micS").textContent = SR ? "Lời kể đang hiện thành chữ bên dưới. Bấm để dừng." : "Đang ghi âm giọng nói của anh/chị. Bấm để dừng.";
+}
+
+function stopRec(silent){
+  if(!REC.active) return;
+  REC.active=false; clearInterval(REC.tick);
+  const sr=REC.sr; REC.sr=null; try{sr&&sr.stop()}catch(e){}
+  try{REC.mr&&REC.mr.state!=="inactive"&&REC.mr.stop()}catch(e){}
+  REC.stream&&REC.stream.getTracks().forEach(t=>t.stop());
+  if(silent) return;
+  const btn=byId("mic"); if(btn){btn.classList.remove("rec");btn.innerHTML=ICON_MIC;btn.setAttribute("aria-label","Bấm để kể tiếp")}
+  const t=byId("micT"); if(t) t.textContent="Bấm để kể tiếp";
+  const s=byId("micS"); if(s) s.textContent="Anh/chị có thể sửa lại chữ bên dưới cho đúng ý.";
+}
+
+function showPlayer(i){
+  const p=byId("player"); if(!p) return;
+  const rec=S.audio[i]; if(!rec){p.innerHTML="";return}
+  if(rec.url) URL.revokeObjectURL(rec.url); rec.url=URL.createObjectURL(rec.blob);
+  p.innerHTML=`<div style="display:flex;flex-direction:column;gap:6px"><span class="small muted">Bản ghi âm</span><audio controls src="${rec.url}"></audio><button class="chip" id="delrec" style="align-self:flex-start">Xóa bản ghi, kể lại</button></div>`;
+  byId("delrec").onclick=()=>{delete S.audio[i];S.ans[i].text="";const ta=byId("txt");if(ta)ta.value="";saveDraft();showPlayer(i);drawMosaic()};
+}
+
+function goTo(i){S.step=i;saveDraft();render()}
+function byId(id){return document.getElementById(id)}
+render();
+</script>
+</body></html>
